@@ -1,17 +1,22 @@
 import importlib
 
 
-_LOCAL_ATTRS = "core.conf.vars"
+_LOCAL_ATTRS = "core.config.constants"
+
+
+"""TODO: Keep track of the loaded
+         modules creating a manifest 
+"""
 
 
 def get_module_attr(module: str, attr: str):
 
-	""" Import a module and get an attribute value by name """
+    """ Import a module and get an attribute value by name """
 
     try:
         imported_module = importlib.import_module(module)
         return getattr(imported_module, attr.upper())
-    except Exception:
+    except Exception as e:
         return None
 
 
@@ -25,9 +30,9 @@ def config_attr(attr: str, local: bool=True):
     Returns:
         Config attribute value
     """
-    attribute = get_module_attr(attr, "config")
+    attribute = get_module_attr("config", attr)
 
     if not bool(attribute) and local:
-        attribute = get_module_attr(attr, _LOCAL_ATTRS)
+        attribute = get_module_attr(_LOCAL_ATTRS, attr)
 
     return attribute
