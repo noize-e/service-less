@@ -1,4 +1,4 @@
-# svrless
+# service-less
 
 Python lib for serverless microservices.
 
