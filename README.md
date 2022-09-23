@@ -1,17 +1,16 @@
 # service-less
 
-Python lib for serverless microservices development with AWS services. The lib provides a simple interface to handle http requests(C.R.U.D handler methods) coming from AWS API Gateway service, among others.
+## Overview
+
+When I started developing apps with a serverless microservices architecture, I wasn't aware of its complexity.  So for my mental health and life much easier, I created this python library.
 
 ## Features
 
-- Custom settings configuration
-- HTTP Verbs whitelisting
-- CORS
+- CORS configuration
+- Whitelist request methods
+- 
 - DynamoDB decimal encoding
 - C.R.U.D paths routing.
-
-## Support
-
 - Amazon API Gateway request
 
 Comming soon:
