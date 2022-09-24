@@ -8,7 +8,7 @@ Based on the template provided in the AWS lambda function documentation, the lib
 
 Other capabilities and features provided are:
 
-1. Loads from a custom configuration file a single to multiple settings.
+1. One or more settings reading from a custom configuration file.
 2. An access control system is provided, which validates by a whitelist if the request method is allowed.
 3. Extracts and encodes from the event source(a JSON document sent from the trigger source, like AWS API Gateway) the payload body.
 4. C.O.R.S headers validation:
@@ -22,19 +22,37 @@ Other capabilities and features provided are:
 
 ## 2. Getting started
 
-Import the __lambda_func__ and __route__ deocrators.
+### Configuration
 
-```python
-from svrless import lambda_func, route
-```
+The following list the available settings:
+
+- HTTP_METHODS - _default: `['GET', 'POST', 'PUT', 'DELETE', 'HEAD']`_
+- HTTP_CONTENT_TYPE - _default: `'application/json'`_
+- CORS_HEADERS - _default: `['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'x-requested-with']`_
+- CORS_ORIGINS - _default: `'*'`_
+- CORS_X_REQUEST - _default: `'*'`_
 
 ### Request Routing
 
-Define a handler function for each CRUD operation business logic with the __route__ decorator.
+Import the __route__ deocorator.
+
+```python
+from svrless import route
+```
+
+Then, define a handler function for each CRUD operation business logic with the __route__ decorator.
 
 Following the naming convention __`{http-method}_handler()`__, changing the `{http-method}` for any in the whitelist. For example:
 
-__For a GET request__.
+In a new file named `config.py` whitelist the GET and POST methods.
+
+```python
+HTTP_METHODS=['GET', 'POST']
+```
+
+Then define in the `main.py` define the handler functions:
+
+__GET request__.
 
 ```python
 @route
@@ -42,7 +60,7 @@ def get_handler():
     return ("Hello World", 200)
 ```
 
-__For a POST request__.
+__POST request__.
 
 ```python
 @route
@@ -50,11 +68,17 @@ def post_handler(payload):
     return ("Hello World", 200)
 ```
 
-> __NOTE!__ The expected returned object is a tuple, where the first index must be any JSON serializable object. The second one is any HTTP code status (2xx, 4xx, 5xx).
+> __NOTE!__ The expected response object must be a tuple of is a tuple `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
 
 This is the only step needed for the method handler. The system registers the function and calls it on runtime.
 
 ### Main Handler Function
+
+Import the __lambda_func__ deocorator.
+
+```python
+from svrless import route, lambda_func
+```
 
 For this function implement as following using the __lambda_func__ decorator. A request(event source) object and the request method handler function are passed as arguments.
 
