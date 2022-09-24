@@ -2,23 +2,16 @@
 
 ## 1. Overview
 
-When I started developing apps with a serverless microservices architecture, I wasn't aware of its complexity.  So for my mental health and to make my life much easier, I created this library. 
+When I started developing apps with a serverless microservices architecture, I wasn't aware of its complexity.  So for the sake of my mental health, I created this library. Based on the template provided by the AWS lambda function documentation, it consist of a simple interface for the main handler function. With the capability to execute a business logic per request method.
 
-Based on the template provided in the AWS lambda function documentation, the library provides a simple interface for the main handler function, with the capability to perform different business logic depending on the request method.
-
-Other capabilities and features provided are:
+Other features are:
 
 1. One or more settings reading from a custom configuration file.
-2. An access control system is provided, which validates by a whitelist if the request method is allowed.
-3. Extracts and encodes from the event source(a JSON document sent from the trigger source, like AWS API Gateway) the payload body.
-4. C.O.R.S headers validation:
-    - Content-Type
-    - X-Amz-Date
-    - Authorization
-    - X-Api-Key
-    - x-requested-with
-5. Maps the response data to the correct schema.
-6. Returns a standard application/json response on an error/exception.
+2. Request method whitelist through an access control system.
+3. Payload body parsing from the event source (a JSON document sent from the trigger source, like AWS API Gateway).
+4. C.O.R.S headers validation.
+5. Response data mapping to the corresponding resource schema.
+6. Standard application/json response on a error/exception.
 
 ## 2. Getting started
 
@@ -31,6 +24,14 @@ The following list the available settings:
 - CORS_HEADERS - _default: `['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'x-requested-with']`_
 - CORS_ORIGINS - _default: `'*'`_
 - CORS_X_REQUEST - _default: `'*'`_
+
+C.O.R.S headers:
+
+- Content-Type
+- X-Amz-Date
+- Authorization
+- X-Api-Key
+- x-requested-with
 
 ### Request Routing
 
