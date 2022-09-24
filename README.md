@@ -38,7 +38,7 @@ C.O.R.S headers:
 Import the __route__ deocorator.
 
 ```python
-from svrless import route
+from service_less import route
 ```
 
 Then, define a handler function for each CRUD operation business logic with the __route__ decorator.
@@ -57,7 +57,7 @@ __GET request__.
 
 ```python
 @route
-def get_handler():
+def get_handler() -> tuple:
     return ("Hello World", 200)
 ```
 
@@ -65,8 +65,10 @@ __POST request__.
 
 ```python
 @route
-def post_handler(payload):
-    return ("Hello World", 200)
+def post_handler(payload: dict) -> tuple:
+    path = payload.get(resource)
+    ...
+    return (f"data from {path} endpoint", 200)
 ```
 
 > __NOTE!__ The expected response object must be a tuple of is a tuple `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
@@ -78,19 +80,20 @@ This is the only step needed for the method handler. The system registers the fu
 Import the __lambda_func__ deocorator.
 
 ```python
-from svrless import route, lambda_func
+from service_less import route, lambda_func
 ```
 
-For this function implement as following using the __lambda_func__ decorator. A request(event source) object and the request method handler function are passed as arguments.
+For this function implement as following using the __lambda_func__ decorator. 
+It reciecves the request event object and the method handler function as arguments.
 
-For example, for a post request, we can pass the body payload b
+For example, for a POST request, we can pass the body payload b
 
 ```python
 @lambda_func
-def lambda_handler(request, handler):
+def lambda_handler(request, handler_func):
     if request.is_post():
-        return handler(request.get_payload())
-    return handler()
+        return handler_func(request.get_payload())
+    return handler_func()
 ```
 
 ## 3. Test
@@ -104,11 +107,9 @@ response = lambda_handler({
     "httpMethod": "POST",
     "headers": {
         "Accept": "application/json, text/javascript, */*; q=0.01",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "es-xl",
         "allow": "*",
     },
-    "body": "{\"key\":\"tok_434rx43xsd3\"}"
+    "body": "data"
 }, {})
 
 print(response)
@@ -121,14 +122,14 @@ __output:__
 ```console
 {
     "statusCode": 200,
-    "body": "{...}",
+    "body": "{\"post_response\": \"data from /url/path endpoint\"}",
     "headers":
     {
         "X-Requested-With": "*",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,HEAD",
-        "Content-Type": "application/json"
+        "Access-Control-Allow-Methods": "GET,POST",
+        "Content-Type": "application/json, text/javascript, */*; q=0.01"
     }
 }
 ```
