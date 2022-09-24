@@ -65,7 +65,7 @@ __POST request__.
 
 ```python
 @route
-def post_handler(path, payload: object) -> tuple:
+def post_handler(path: str, payload: object) -> tuple:
     return ({"post_response": f"Request from '{path}' with payload '{payload}'"}, 200)
 ```
 
@@ -83,9 +83,10 @@ from service_less import route, lambda_func
 ...
 
 @lambda_func
-def lambda_handler(request, handler_func):
+def lambda_handler(request: dict, handler_func: callable):
     if request.is_post():
-        return handler_func(request.get_payload())
+        return handler_func(request.get("path"),
+                            request.get_payload())
     return handler_func()
 ```
 
