@@ -51,7 +51,7 @@ In a new file named `config.py` whitelist the GET and POST methods.
 HTTP_METHODS=['GET', 'POST']
 ```
 
-Then define in the `main.py` define the handler functions:
+Then in a new file `main.py` define the handlers functions:
 
 __GET request__.
 
@@ -83,9 +83,9 @@ from service_less import route, lambda_func
 ...
 
 @lambda_func
-def lambda_handler(request: dict, handler_func: callable):
+def lambda_handler(request: dict, handler_func: callable) -> tuple:
     if request.is_post():
-        return handler_func(request.get("path"),
+        return handler_func(request.path,
                             request.get_payload())
     return handler_func()
 ```
@@ -97,6 +97,9 @@ In a new file __`test.py`__ add the following code:
 ### POST request Test
 
 ```python
+from main import lambda_handler
+
+
 response = lambda_handler({
     "resource": "/url/path",
     "path": "/url/path",
@@ -123,7 +126,7 @@ __output:__
     {
         "X-Requested-With": "*",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, ...",
+        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
         "Access-Control-Allow-Methods": "GET,POST",
         "Content-Type": "application/json"
     }

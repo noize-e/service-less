@@ -8,7 +8,7 @@ def lambda_func(handler: callable):
     def handler_wrapper(event: dict, context: dict):
         try:
             request = Request(event)
-            method_handler = router.get(request.get_method())
+            method_handler = router.get(request.method)
             data, code = handler(request, method_handler)
         except LambdaError as e:
             data = "{}".format(e)
@@ -37,5 +37,5 @@ def invoke_function(name: str,
                               LogType='Tail',
                               Payload=byp)
     except Exception:
-        traceback.format_exc()
+        print(traceback.format_exc())
     return None

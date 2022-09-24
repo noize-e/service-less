@@ -1,7 +1,7 @@
 import importlib
 
 
-_LOCAL_ATTRS = "core.config.constants"
+_LOCAL_ATTRS = "service_less.config.constants"
 
 
 """TODO: Keep track of the loaded

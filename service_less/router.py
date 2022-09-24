@@ -3,7 +3,6 @@ from .config import config_attr
 
 
 class Router(object):
-
 	def __init__(self):
 		self.routes = {}
 

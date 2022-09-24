@@ -1,7 +1,6 @@
 from ..config import config_attr
 from ..encoder import MultiEncoder
 from ..errors import InvalidRequestMethod
-from dataclasses import dataclass
 import json
 
 
@@ -25,7 +24,7 @@ class Response(dict):
             
     def __encode_body(self, body: object):
         if isinstance(body, dict) or isinstance(body, list):
-            return json.dumps(response, cls=MultiEncoder)
+            return json.dumps(body, cls=MultiEncoder)
         return json.dumps({'message': str(body)})
 
     def __set_headers(self, headers: dict, cors: bool):
@@ -46,12 +45,21 @@ class Request(object):
 
     def __init__(self, event):
         self._request_event = event
+        self._path = event.get("path", None)
         self._method = event.get('httpMethod', None)
         self.__validate_request_method()
 
     def __validate_request_method(self) -> dict:
         if not self._method or self._method not in config_attr("http_methods"):
             raise InvalidRequestMethod(verb=self._method)
+
+    @property
+    def path(self):
+        return self._path
+    
+    @property
+    def method(self):
+        return self._method
 
     def get_method(self):
         return self._method
@@ -60,6 +68,10 @@ class Request(object):
         return self._method == 'POST'
 
     def get_payload(self) -> dict:
-        return dict(json.loads(self._request_event['body']))
+        try:
+            body = dict(json.loads(self._request_event['body']))
+        except:
+            body = str(self._request_event['body'])
+        return body
         
 
