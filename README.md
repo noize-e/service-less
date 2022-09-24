@@ -13,7 +13,7 @@ Other features are:
 5. Response data mapping to the corresponding resource schema.
 6. Standard application/json response on a error/exception.
 
-## 2. Getting started
+# 2. Getting started
 
 ### Configuration
 
@@ -89,11 +89,11 @@ def lambda_handler(request, handler_func):
     return handler_func()
 ```
 
-## 3. Test
+# 3. Test
 
 In a new file __`test.py`__ add the following code:
 
-# POST request Test
+### POST request Test
 
 ```python
 response = lambda_handler({
