@@ -65,10 +65,8 @@ __POST request__.
 
 ```python
 @route
-def post_handler(payload: dict) -> tuple:
-    path = payload.get(resource)
-    ...
-    return (f"data from {path} endpoint", 200)
+def post_handler(path, payload: object) -> tuple:
+    return ({"post_response": f"Request from '{path}' with payload '{payload}'"}, 200)
 ```
 
 > __NOTE!__ The expected response object must be a tuple of is a tuple `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
@@ -77,18 +75,13 @@ This is the only step needed for the method handler. The system registers the fu
 
 ### Main Handler Function
 
-Import the __lambda_func__ deocorator.
+Import the __lambda_func__ function and decorate the main handler function. The decorator receives 2 arguments: the __request event object__ and the __method handler function__.
 
 ```python
 from service_less import route, lambda_func
-```
 
-For this function implement as following using the __lambda_func__ decorator. 
-It reciecves the request event object and the method handler function as arguments.
+...
 
-For example, for a POST request, we can pass the body payload b
-
-```python
 @lambda_func
 def lambda_handler(request, handler_func):
     if request.is_post():
@@ -100,6 +93,8 @@ def lambda_handler(request, handler_func):
 
 In a new file __`test.py`__ add the following code:
 
+# POST request Test
+
 ```python
 response = lambda_handler({
     "resource": "/url/path",
@@ -109,7 +104,7 @@ response = lambda_handler({
         "Accept": "application/json, text/javascript, */*; q=0.01",
         "allow": "*",
     },
-    "body": "data"
+    "body": f"Hello World!"
 }, {})
 
 print(response)
@@ -122,14 +117,14 @@ __output:__
 ```console
 {
     "statusCode": 200,
-    "body": "{\"post_response\": \"data from /url/path endpoint\"}",
+    "body": "{\"post_response\": \"Request from '/url/path' with payload 'Hello World!'\"}",
     "headers":
     {
         "X-Requested-With": "*",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
+        "Access-Control-Allow-Headers": "Content-Type, ...",
         "Access-Control-Allow-Methods": "GET,POST",
-        "Content-Type": "application/json, text/javascript, */*; q=0.01"
+        "Content-Type": "application/json"
     }
 }
 ```
