@@ -1,31 +1,30 @@
-# service-less
+# Serviless
 
-## 1. Overview
+In building web solutions implementing a micro-service architecture using Amazon Web Services, I stumbled upon a few problems from low to high complexity. 
+So, using the already defined template for lambda functions deployment, I abstract most of the functionality regarding the required implementation by the service and then can focus only on creating the business logic for the service.
 
-When I started developing apps with a serverless microservices architecture, I wasn't aware of its complexity.  So for the sake of my mental health, I created this library. Based on the template provided by the AWS lambda function documentation, it consist of a simple interface for the main handler function. With the capability to execute a business logic per request method.
+## Features:
 
-Other features are:
-
-1. One or more settings reading from a custom configuration file.
-2. Request method whitelist through an access control system.
-3. Payload body parsing from the event source (a JSON document sent from the trigger source, like AWS API Gateway).
+1. It has a configuration file with default values, that can be replace with one custom with the values we need to set.
 4. C.O.R.S headers validation.
-5. Response data mapping to the corresponding resource schema.
-6. Standard application/json response on a error/exception.
+2. HTTP Request method filtering (whitelist).
+3. Request payload body validation and format verification.
+5. Response data mapping by a resource schema.
+6. Errors/Eceptions standard application/json response.
 
-# 2. Getting started
+## Config
 
-### Configuration
+#### Settings
 
-The following list the available settings:
+| **Settings**      | **Default**                                                                         |
+|-------------------|-------------------------------------------------------------------------------------|
+| HTTP_METHODS      | `['GET', 'POST', 'PUT', 'DELETE', 'HEAD']`                                          |
+| HTTP_CONTENT_TYPE | `'application/json'`                                                                |
+| CORS_HEADERS      | `['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'x-requested-with']`  |
+| CORS_ORIGINS      | _`'*'`_                                                                             |
+| CORS_X_REQUEST    | _`'*'`_                                                                             |
 
-- HTTP_METHODS - _default: `['GET', 'POST', 'PUT', 'DELETE', 'HEAD']`_
-- HTTP_CONTENT_TYPE - _default: `'application/json'`_
-- CORS_HEADERS - _default: `['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'x-requested-with']`_
-- CORS_ORIGINS - _default: `'*'`_
-- CORS_X_REQUEST - _default: `'*'`_
-
-C.O.R.S headers:
+#### C.O.R.S headers
 
 - Content-Type
 - X-Amz-Date
@@ -33,54 +32,72 @@ C.O.R.S headers:
 - X-Api-Key
 - x-requested-with
 
-### Request Routing
+## 
 
-Import the __route__ deocorator.
+### Router
 
-```python
-from service_less import route
-```
-
-Then, define a handler function for each CRUD operation business logic with the __route__ decorator.
-
-Following the naming convention __`{http-method}_handler()`__, changing the `{http-method}` for any in the whitelist. For example:
-
-In a new file named `config.py` whitelist the GET and POST methods.
+Create a new `config.py` and set the methods to be whitelisted.
 
 ```python
 HTTP_METHODS=['GET', 'POST']
 ```
 
-Then in a new file `main.py` define the handlers functions:
-
-__GET request__.
+Create a new `main.py` file, then import the __service_less.route__ deocorator and define the handler function for each C.R.U.D. operation.
+> **Note!** The name of the function follows the convention: _def_ __`{http-method}_handler()`__.
 
 ```python
+from service_less import route
+
+Codes = type('Codes', (,), {
+    "OK": 200
+})
+
+""" HTTP Method GET"""
 @route
 def get_handler() -> tuple:
-    return ("Hello World", 200)
-```
+    return ("Hello World", Codes.OK)
 
-__POST request__.
 
-```python
+""" HTTP Method POST"""
 @route
 def post_handler(path: str, payload: object) -> tuple:
-    return ({"post_response": f"Request from '{path}' with payload '{payload}'"}, 200)
+    return ({
+        "post_response": f"Request from '{path}' with payload '{payload}'"
+    }, Codes.OK)
 ```
 
-> __NOTE!__ The expected response object must be a tuple of is a tuple `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
+The response must be a tuple: `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
 
-This is the only step needed for the method handler. The system registers the function and calls it on runtime.
+Now we need to connect the request's handlers and connect them with the lambda main handler function.
 
-### Main Handler Function
+## Lambda Function Handler
 
-Import the __lambda_func__ function and decorate the main handler function. The decorator receives 2 arguments: the __request event object__ and the __method handler function__.
+Import the __service_less.lambda_func__ decorator. This receives 2 arguments: the __request event object__ and the __method handler function__, which are sent by the API Gateway service.
 
 ```python
 from service_less import route, lambda_func
 
-...
+Codes = type('Codes', (,), {
+    "OK": 200
+})
+
+""" HTTP Method GET"""
+
+@route
+def get_handler() -> tuple:
+    return ("Hello World", Codes.OK)
+
+
+""" HTTP Method POST"""
+
+@route
+def post_handler(path: str, payload: object) -> tuple:
+    return ({
+        "post_response": f"Request from '{path}' with payload '{payload}'"
+    }, Codes.OK)
+
+
+""" HTTP Method POST"""
 
 @lambda_func
 def lambda_handler(request: dict, handler_func: callable) -> tuple:
@@ -90,7 +107,7 @@ def lambda_handler(request: dict, handler_func: callable) -> tuple:
     return handler_func()
 ```
 
-# 3. Test
+## Testing
 
 In a new file __`test.py`__ add the following code:
 
