@@ -60,7 +60,7 @@ HTTP_METHODS=['GET', 'POST']
 
 ### Request Handler
 
-The request is expected to came from AWS API Gateway (RESTful API). With the __`@lambda_func`__ decorator is WD
+The request is expected to came from AWS API Gateway (RESTful API). With the __`@lambda_func`__ decorator 
 
 Import the __service_less.lambda_func__ decorator. This receives 2 arguments: the __request event object__ and the __method handler function__, which are sent by the API Gateway service.
 
