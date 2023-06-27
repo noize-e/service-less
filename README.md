@@ -10,6 +10,8 @@ Features:
 5  Request method function routing.
 6. Exceptions handling.
 
+## Config
+
 | **Settings**      | **Default**                                                                         |
 |-------------------|-------------------------------------------------------------------------------------|
 | HTTP_METHODS      | `['GET', 'POST', 'PUT', 'DELETE', 'HEAD']`                                          |
@@ -60,9 +62,7 @@ HTTP_METHODS=['GET', 'POST']
 
 ### Request Handler
 
-The request is expected to came from AWS API Gateway (RESTful API). With the __`@lambda_func`__ decorator 
-
-Import the __service_less.lambda_func__ decorator. This receives 2 arguments: the __request event object__ and the __method handler function__, which are sent by the API Gateway service.
+The request is expected to came from AWS API Gateway (RESTful API). With the __`@lambda_func`__ decorator define the main handler functionwith 2 arguments: __request-event-object__ and __method-handler-function__.
 
 ```python
 from service_less import route, lambda_func
@@ -79,9 +79,7 @@ def lambda_handler(request: dict, handler_func: callable) -> tuple:
 
 ## Testing
 
-In a new file __`test.py`__ add the following code:
-
-### POST request Test
+Emulate a request from AWS API Gateway.
 
 ```python
 from main import lambda_handler
@@ -100,10 +98,7 @@ response = lambda_handler({
 
 print(response)
 ```
-
-Then execute __`python test.py`__. 
-
-__output:__
+__Response:__
 
 ```console
 {
