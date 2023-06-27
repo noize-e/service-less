@@ -1,20 +1,14 @@
-# Serviless
+# ServiceLess
 
-In building web solutions implementing a micro-service architecture using Amazon Web Services, I stumbled upon a few problems from low to high complexity. 
-So, using the already defined template for lambda functions deployment, I abstract most of the functionality regarding the required implementation by the service and then can focus only on creating the business logic for the service.
+A Python framework to work with micro services and AWS lambda function. 
 
-## Features:
-
-1. It has a configuration file with default values, that can be replace with one custom with the values we need to set.
+Features:
+1. Extendable configuration settings.
 4. C.O.R.S headers validation.
-2. HTTP Request method filtering (whitelist).
-3. Request payload body validation and format verification.
-5. Response data mapping by a resource schema.
-6. Errors/Eceptions standard application/json response.
-
-## Config
-
-#### Settings
+2. HTTP Requests whitelisting.
+3. Request data verification.
+5  Request method function routing.
+6. Exceptions handling.
 
 | **Settings**      | **Default**                                                                         |
 |-------------------|-------------------------------------------------------------------------------------|
@@ -24,26 +18,12 @@ So, using the already defined template for lambda functions deployment, I abstra
 | CORS_ORIGINS      | _`'*'`_                                                                             |
 | CORS_X_REQUEST    | _`'*'`_                                                                             |
 
-#### C.O.R.S headers
+## Requests
 
-- Content-Type
-- X-Amz-Date
-- Authorization
-- X-Api-Key
-- x-requested-with
+### Routing
 
-## 
-
-### Router
-
-Create a new `config.py` and set the methods to be whitelisted.
-
-```python
-HTTP_METHODS=['GET', 'POST']
-```
-
-Create a new `main.py` file, then import the __service_less.route__ deocorator and define the handler function for each C.R.U.D. operation.
-> **Note!** The name of the function follows the convention: _def_ __`{http-method}_handler()`__.
+For CRUD operations define a handler function using the __`@route`__ deocorator.  
+The function name must include the request method as prefix ending with underscore.
 
 ```python
 from service_less import route
@@ -53,6 +33,7 @@ Codes = type('Codes', (,), {
 })
 
 """ HTTP Method GET"""
+
 @route
 def get_handler() -> tuple:
     return ("Hello World", Codes.OK)
@@ -66,38 +47,27 @@ def post_handler(path: str, payload: object) -> tuple:
     }, Codes.OK)
 ```
 
-The response must be a tuple: `(JSON-serializable-object, int(HTTP-code[2xx, 4xx, 5xx]))`.
+Response type: __`Tuple(JSON-serializable-object{}, int(2xx | 4xx | 5xx))`
 
-Now we need to connect the request's handlers and connect them with the lambda main handler function.
+### Request Whitelist
 
-## Lambda Function Handler
+Allow the method handler function execution by adding the method in the setting list __HTTP_METHODS__.
+
+```python
+# ./config.py
+HTTP_METHODS=['GET', 'POST']
+```
+
+### Request Handler
+
+The request is expected to came from AWS API Gateway (RESTful API). With the __`@lambda_func`__ decorator is WD
 
 Import the __service_less.lambda_func__ decorator. This receives 2 arguments: the __request event object__ and the __method handler function__, which are sent by the API Gateway service.
 
 ```python
 from service_less import route, lambda_func
 
-Codes = type('Codes', (,), {
-    "OK": 200
-})
-
-""" HTTP Method GET"""
-
-@route
-def get_handler() -> tuple:
-    return ("Hello World", Codes.OK)
-
-
-""" HTTP Method POST"""
-
-@route
-def post_handler(path: str, payload: object) -> tuple:
-    return ({
-        "post_response": f"Request from '{path}' with payload '{payload}'"
-    }, Codes.OK)
-
-
-""" HTTP Method POST"""
+...
 
 @lambda_func
 def lambda_handler(request: dict, handler_func: callable) -> tuple:
